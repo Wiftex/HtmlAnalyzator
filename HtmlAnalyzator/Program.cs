@@ -94,7 +94,12 @@ namespace HtmlAnalyzator
             }
             catch(FileNotFoundException ex)
             {
+                //Если файл не найден, то выводится сообщение и записывается лог-файл
                 Console.WriteLine("Файл не найден");
+
+                StreamWriter writer = new StreamWriter("log/log_" + DateTime.Now.ToShortDateString() + "_" + DateTime.Now.Hour + "_" + DateTime.Now.Second + ".log", true);
+                writer.WriteLine(ex.Message);
+                writer.Close();
 
                 return null;
             }
