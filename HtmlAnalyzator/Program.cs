@@ -10,66 +10,94 @@ namespace HtmlAnalyzator
     {
         static void Main(string[] args)
         {
-            string path = @"C:\Users\wifte\source\repos\HtmlAnalyzator\HtmlAnalyzator\bin\Debug\net5.0\Тестовые Файлы\file1.html";
+            //Ввод пользователем пути к файлу
+            Console.Write("Введите путь к файлу: ");
+            string path = Console.ReadLine();
 
+            //Обработка HTML документа и запись результата в массив слов
             string[] words = Parsing(path);
 
+            //Ключ словаря - слово, значение - количество в файле
             Dictionary<string, int> dict = new Dictionary<string, int>();
 
-            for (int i = 0; i<words.Length; i++)
+            //Если массив слов не пуст
+            if (words != null)
             {
-                int count = 0;
-
-                for (int j = i; j < words.Length; j++)
+                //Подсчет упоминаний слова в файле
+                for (int i = 0; i < words.Length; i++)
                 {
-                    if (words[i] == words[j])
+                    //счетчик
+                    int count = 0;
+
+                    //Если слово повторяется, то увеличиваем счетчик
+                    for (int j = i; j < words.Length; j++)
                     {
-                        count++;
+                        if (words[i] == words[j])
+                        {
+                            count++;
+                        }
                     }
+
+                    //Проверка на то записано ли слово в словарь
+                    bool keyExists = false;
+                    foreach (string s in dict.Keys)
+                    {
+                        if (words[i] == s)
+                        {
+                            keyExists = true;
+                        }
+                    }
+
+                    //Если нет, то записываем
+                    if (!keyExists)
+                        dict.Add(words[i], count);
+
                 }
 
-                bool keyExists = false;
-                foreach(string s in dict.Keys)
+                //Сортировка словаря и вывод результата
+                foreach (KeyValuePair<string, int> keyValue in dict.OrderByDescending(keyValue => keyValue.Value))
                 {
-                    if(words[i] == s)
-                    {
-                        keyExists = true;
-                    }
+                    Console.WriteLine(keyValue.Key + " - " + keyValue.Value);
                 }
-
-                if (!keyExists)
-                    dict.Add(words[i], count);
-
             }
 
-            foreach(KeyValuePair<string, int> keyValue in dict.OrderByDescending(keyValue => keyValue.Value))
-            {
-                Console.WriteLine(keyValue.Key + " - " + keyValue.Value);
-            }
+            Console.ReadLine();
         }
 
         static string[] Parsing(string path)
         {
             string text;
 
-            StreamReader reader = new StreamReader(path);
-            text = reader.ReadToEnd();
-
-            Regex regex = new Regex(@"(>([^<]*)<)");
-            MatchCollection matches = regex.Matches(text);
-            text = "";
-            if (matches.Count > 0)
+            try
             {
+                //Запись символов из файла в переменную
+                StreamReader reader = new StreamReader(path);
+                text = reader.ReadToEnd();
 
-                foreach (Match match in matches)
-                    text = String.Concat(text, match.Value);
+                //Регулярное выражение фильтрующее теги
+                Regex regex = new Regex(@"(>([^<]*)<)");
+                MatchCollection matches = regex.Matches(text);
+                text = "";
+                if (matches.Count > 0)
+                {
+                    foreach (Match match in matches)
+                        text = String.Concat(text, match.Value);
+                }
+
+                //Регулярное выражение фильтрующее неподходящие символы
+                text = Regex.Replace(text, @"&([\s\S]+?);", "");
+
+                //Разделение текста на массив строк
+                string[] words = text.Split(new char[] { ' ', '<', '>', ',', '.', '&', ';', ':', '\n', '\u000D' }, StringSplitOptions.RemoveEmptyEntries);
+
+                return words;
             }
+            catch(FileNotFoundException ex)
+            {
+                Console.WriteLine("Файл не найден");
 
-            text = Regex.Replace(text, @"&([\s\S]+?);", "");
-
-            string[] words = text.Split(new char[] { ' ', '<', '>', ',', '.', '&', ';', ':', '\n', '\u000D' }, StringSplitOptions.RemoveEmptyEntries);
-
-            return words;
+                return null;
+            }
         }
     }
 }
