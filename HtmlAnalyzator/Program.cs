@@ -17,7 +17,7 @@ namespace HtmlAnalyzator
             //Обработка HTML документа и запись результата в массив слов
             string[] words = Parsing(path);
 
-            DataBase dataBase = new DataBase(path);
+            DataBase dataBase = new DataBase(path, @"data\db.db");
 
             //Ключ словаря - слово, значение - количество в файле
             Dictionary<string, int> dict = new Dictionary<string, int>();
@@ -60,6 +60,7 @@ namespace HtmlAnalyzator
                 foreach (KeyValuePair<string, int> keyValue in dict.OrderByDescending(keyValue => keyValue.Value))
                 {
                     Console.WriteLine(keyValue.Key + " - " + keyValue.Value);
+                    dataBase.Insert(keyValue.Key, keyValue.Value);
                 }
             }
 
