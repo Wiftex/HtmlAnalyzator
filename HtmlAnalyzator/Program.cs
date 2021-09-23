@@ -17,6 +17,8 @@ namespace HtmlAnalyzator
             //Обработка HTML документа и запись результата в массив слов
             string[] words = Parsing(path);
 
+            DataBase dataBase = new DataBase(path);
+
             //Ключ словаря - слово, значение - количество в файле
             Dictionary<string, int> dict = new Dictionary<string, int>();
 
